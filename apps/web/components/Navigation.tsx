@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { Button } from "@workspace/ui/components/button";
 import { usePathname } from "next/navigation";
 import {
@@ -10,13 +10,14 @@ import {
   NavigationMenuList,
 } from "@workspace/ui/components/navigation-menu";
 import Link from "next/link";
+import { Authenticated, Unauthenticated } from "convex/react";
 
 export default function Navigation() {
   const pathname = usePathname();
   return (
     <>
-      <NavigationMenu className="max-w-full">
-        <div className="flex items-center justify-between mx-auto px-4 py-3 w-full">
+      <NavigationMenu className="max-w-full z-10">
+        <div className="flex items-center justify-between mx-auto px-4 py-3 w-full border-b-2 border-b-gray-800">
           <Link href="/" className="flex items-center gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -30,17 +31,13 @@ export default function Navigation() {
             <span className="font-semibold text-lg">Slideck</span>
           </Link>
           <div className="flex ml-auto items-center gap-4">
-            <SignedIn>
-              {pathname === "/dashboard" ? (
-                <></>
-              ) : (
-                <Link href="/dashboard" className="no-underline" prefetch={false}>
-                  <Button className="bg-violet-600 hover:bg-violet-700 text-white">Dashboard</Button>
-                </Link>
-              )}
+            <Authenticated>
+              <Link href="/dashboard" className="no-underline" prefetch={false}>
+                <Button className="bg-violet-600 hover:bg-violet-700 text-white">Dashboard</Button>
+              </Link>
               <UserButton />
-            </SignedIn>
-            <SignedOut>
+            </Authenticated>
+            <Unauthenticated>
               <NavigationMenuList className="flex items-center gap-4">
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
@@ -53,7 +50,7 @@ export default function Navigation() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
-            </SignedOut>
+            </Unauthenticated>
           </div>
         </div>
       </NavigationMenu>

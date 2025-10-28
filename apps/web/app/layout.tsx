@@ -1,6 +1,5 @@
 import "@workspace/ui/globals.css";
 import { Providers } from "@/components/providers";
-import { ClerkProvider } from "@clerk/nextjs";
 import Navigation from "@/components/Navigation";
 
 export default function RootLayout({
@@ -9,13 +8,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider signInUrl="/login" signUpUrl="/signup" afterSignOutUrl="/">
-      <html lang="en" suppressHydrationWarning>
-        <body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <Providers>
           <Navigation />
-          <Providers>{children}</Providers>
-        </body>
-      </html>
-    </ClerkProvider>
+          {children}
+        </Providers>
+      </body>
+    </html>
   );
 }
