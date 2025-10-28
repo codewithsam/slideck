@@ -1,3 +1,5 @@
+"use client";
+
 import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 
@@ -27,14 +29,23 @@ export const create = mutation({
     }
 })
 
-export const getByOwnerId = query({
+export const getAccessibleDecks = query({
     args: {},
     handler: async (ctx) => {
         const user = await ctx.auth.getUserIdentity()
         if (!user) {
             throw new ConvexError("Unauthorized")
         }
-        return await ctx.db.query("decks").filter((q) => q.eq(q.field('ownerId'), user.subject)).collect()
+        const decks = await ctx.db.query("decks").collect();
+
+        // TODO: optimize this by denormalizing it in future or making convex db follow relational joins
+
+        return decks.filter(
+            (deck) =>
+                deck.ownerId === user.subject ||
+                (Array.isArray(deck.sharedWith) &&
+                    deck.sharedWith.includes(user.subject))
+        );
     },
 });
 

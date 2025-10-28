@@ -7,8 +7,8 @@ export function SlidePreviewCard({ slide }: { slide: any }) {
   // TODO: better use screenshots
 
   return (
-    <Card className="aspect-[4/3] overflow-hidden border border-border rounded-2xl shadow-sm bg-white cursor-pointer transition duration-150">
-      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+    <Card className="aspect-[4/3] overflow-hidden rounded-2xl order-gray-700 bg-[#0f172a]/70 shadow-lg cursor-pointer">
+      <div className="text-gray-500 relative w-full h-full flex items-center justify-center overflow-hidden">
         {hasContent ? (
           <div
             className="w-full h-full p-3 text-sm text-left overflow-hidden"

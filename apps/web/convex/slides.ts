@@ -18,3 +18,27 @@ export const getSlidesByDeckId = query({
         return slides;
     },
 });
+
+export const getSlideById = query({
+    args: { slideId: v.id("slides") },
+    handler: async (ctx, args) => {
+        const user = await ctx.auth.getUserIdentity();
+        if (!user) throw new ConvexError("Unauthorized");
+
+        const slide = await ctx.db.get(args.slideId);
+        if (!slide) return null;
+
+        const deck = await ctx.db.get(slide.deckId);
+        if (!deck) return null;
+        const canAccess =
+            deck.ownerId === user.subject ||
+            deck.sharedWith?.includes(user.subject) ||
+            slide.sharedWith?.includes(user.subject);
+
+        if (!canAccess) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        return slide;
+    },
+});
