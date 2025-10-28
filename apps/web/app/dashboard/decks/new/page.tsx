@@ -38,7 +38,7 @@ export default function NewDeckPage() {
     setIsCreating(true);
     create({ title: deckFormData.title, description: deckFormData.description })
       .then((deckId) => {
-        router.push(`/dashboard/deck/${deckId}`);
+        router.push(`/dashboard/decks/${deckId}`);
       })
       .finally(() => {
         setIsCreating(false);

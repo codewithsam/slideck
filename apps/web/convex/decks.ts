@@ -27,7 +27,7 @@ export const create = mutation({
     }
 })
 
-export const get = query({
+export const getByOwnerId = query({
     args: {},
     handler: async (ctx) => {
         const user = await ctx.auth.getUserIdentity()
@@ -37,3 +37,29 @@ export const get = query({
         return await ctx.db.query("decks").filter((q) => q.eq(q.field('ownerId'), user.subject)).collect()
     },
 });
+
+export const deleteDeck = mutation({
+    args: { deckId: v.id("decks") },
+    handler: async (ctx, args) => {
+        const user = await ctx.auth.getUserIdentity();
+        if (!user) throw new ConvexError("Unauthorized");
+
+        const deck = await ctx.db.get(args.deckId);
+
+        if (!deck) throw new Error("Deck not found");
+        if (deck.ownerId !== user.subject) throw new Error("Access denied");
+
+        const slides = await ctx.db
+            .query("slides")
+            .withIndex("by_deck_and_order", q => q.eq("deckId", args.deckId))
+            .collect();
+
+        for (const slide of slides) {
+            await ctx.db.delete(slide._id);
+        }
+
+        await ctx.db.delete(args.deckId)
+        return { success: true }
+
+    }
+})

@@ -11,7 +11,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Card 1 - View all decks */}
-          <Link href="/dashboard/deck" className="group">
+          <Link href="/dashboard/decks" className="group">
             <div className="flex flex-col items-center p-6 rounded-2xl bg-gray-800/60 hover:bg-gray-800/75 transition-shadow shadow-sm hover:shadow-md text-center">
               <div className="flex items-center justify-center w-20 h-20 rounded-lg bg-violet-600/10 group-hover:bg-violet-600/20">
                 <Layers className="w-10 h-10 text-violet-400" />
@@ -22,7 +22,7 @@ export default function DashboardPage() {
           </Link>
 
           {/* Card 2 - Create new deck */}
-          <Link href="/dashboard/deck/new" className="group">
+          <Link href="/dashboard/decks/new" className="group">
             <div className="flex flex-col items-center p-6 rounded-2xl bg-gray-800/60 hover:bg-gray-800/75 transition-shadow shadow-sm hover:shadow-md text-center">
               <div className="flex items-center justify-center w-20 h-20 rounded-lg bg-indigo-600/10 group-hover:bg-indigo-600/20">
                 <PlusCircle className="w-10 h-10 text-indigo-400" />

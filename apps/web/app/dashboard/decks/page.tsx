@@ -4,11 +4,11 @@ import { Button } from "@workspace/ui/components/button";
 import { Ellipsis } from "lucide-react";
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import Link from "next/link";
-import { api } from "./../../../convex/_generated/api";
+import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 
 export default function DeckList() {
-  const decks = useQuery(api.decks.get);
+  const decks = useQuery(api.decks.getByOwnerId);
 
   return (
     <div className="p-8">
@@ -16,7 +16,7 @@ export default function DeckList() {
         {decks ? (
           decks.map((deck) => (
             <Card key={deck._id}>
-              <Link href={`/dashboard/deck/${deck._id}`}>
+              <Link href={`/dashboard/decks/${deck._id}`}>
                 <CardHeader>
                   <CardTitle>{deck.title}</CardTitle>
                   <CardDescription>{deck.description}</CardDescription>

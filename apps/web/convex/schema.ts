@@ -22,7 +22,5 @@ export default defineSchema({
         isPublic: v.boolean(),
         sharedWith: v.array(v.string()),
     })
-        .index("by_deck_id", ["deckId"])
-        .index("by_is_public", ["isPublic"])
-        .index("by_shared_with", ["sharedWith"])
+        .index("by_deck_and_order", ["deckId", "order"])
 })
