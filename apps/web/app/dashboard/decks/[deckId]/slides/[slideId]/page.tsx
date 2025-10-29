@@ -6,11 +6,11 @@ import { useParams, useRouter } from "next/navigation";
 import { Id, Doc } from "@/convex/_generated/dataModel";
 import { Protect } from "@clerk/nextjs";
 import { Button } from "@workspace/ui/components/button";
-import { ArrowLeft, Plus } from "lucide-react";
-import { RoomProvider, useOthers } from "@liveblocks/react/suspense";
+import { ArrowLeft, Plus, RotateCcw, RotateCw } from "lucide-react";
+import { RoomProvider, useOthers, useHistory } from "@liveblocks/react/suspense";
 import SlideCanvas from "../SlideCanvas";
 import { LiveList } from "@liveblocks/client";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 
 export default function SlidePage() {
   const { slideId, deckId } = useParams<{ slideId: Id<"slides">; deckId: Id<"decks"> }>();
@@ -51,6 +51,7 @@ function SlideEditor({ slide, deckId }: { slide: Doc<"slides">; deckId: Id<"deck
   const others = useOthers();
   const userCount = others.length;
   const addBox = SlideCanvas.useAddBox();
+  const { canUndo, canRedo, undo, redo } = useHistory();
 
   return (
     <Protect>
@@ -75,6 +76,27 @@ function SlideEditor({ slide, deckId }: { slide: Doc<"slides">; deckId: Id<"deck
           </div>
 
           <h1 className="text-2xl font-bold text-gray-100">{slide.title || "Untitled Slide"}</h1>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={undo}
+            disabled={!canUndo}
+            className="border-gray-700 bg-black/40 hover:bg-gray-800/60 text-gray-300"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={redo}
+            disabled={!canRedo}
+            className="border-gray-700 bg-black/40 hover:bg-gray-800/60 text-gray-300"
+          >
+            <RotateCw className="h-4 w-4" />
+          </Button>
         </div>
 
         <div className="flex justify-between items-center mb-6">
