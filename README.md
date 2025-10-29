@@ -175,6 +175,6 @@ All providers are combined in `components/providers.tsx`:
 
 ## 🧑‍🤝‍🧑 Contributors
 
-- **Sam S.** – Full-stack development, architecture, and design
+- **Sanyam Singh** – Full-stack development, architecture, and design
 
 ---
