@@ -22,5 +22,15 @@ export default defineSchema({
         isPublic: v.boolean(),
         sharedWith: v.array(v.string()),
     })
-        .index("by_deck_and_order", ["deckId", "order"])
+        .index("by_deck_and_order", ["deckId", "order"]),
+
+    users: defineTable({
+        clerkUserId: v.string(),
+        email: v.string(),
+        name: v.optional(v.string()),
+        imageUrl: v.optional(v.string()),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+    }).index("by_clerkUserId", ["clerkUserId"])
+        .index("by_email", ["email"]),
 })

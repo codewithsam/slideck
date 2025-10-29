@@ -1,28 +1,32 @@
 "use client";
 
-import { Card } from "@workspace/ui/components/card";
+import { Id } from "@/convex/_generated/dataModel";
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { Hash } from "lucide-react";
+import { MouseEventHandler } from "react";
 
-export function SlidePreviewCard({ slide }: { slide: any }) {
-  const hasContent = slide.content && slide.content.trim().length > 0;
-  // TODO: better use screenshots
-
+export function SlidePreviewCard({
+  slide,
+  idx,
+  onSlideClick,
+}: {
+  slide: {
+    _id: Id<"slides">;
+    title?: string;
+    content: string;
+  };
+  idx: number;
+  onSlideClick: MouseEventHandler<HTMLDivElement>;
+}) {
   return (
-    <Card className="aspect-[4/3] overflow-hidden rounded-2xl order-gray-700 bg-[#0f172a]/70 shadow-lg cursor-pointer">
-      <div className="text-gray-500 relative w-full h-full flex items-center justify-center overflow-hidden">
-        {hasContent ? (
-          <div
-            className="w-full h-full p-3 text-sm text-left overflow-hidden"
-            dangerouslySetInnerHTML={{ __html: sanitizeSlideContent(slide.content) }}
-          />
-        ) : (
-          <p className="text-muted-foreground text-sm">Empty Slide</p>
-        )}
-        <div className="absolute top-2 right-3 text-xs text-muted-foreground">#{slide.order}</div>
-      </div>
+    <Card onClick={onSlideClick} className="bg-[#0f172a] border-gray-700 text-gray-200 hover:shadow-lg transition-all">
+      <CardContent className="p-4 flex flex-col justify-between h-full">
+        <div className="items-center justify-center">
+          <div className="flex flex-row text-4xl items-center justify-center text-muted-foreground">
+            <Hash size={64} /> Slide {idx}
+          </div>
+        </div>
+      </CardContent>
     </Card>
   );
-}
-
-function sanitizeSlideContent(html: string) {
-  return html.replace(/<script[^>]*>.*?<\/script>/gi, "").replace(/on\w+="[^"]*"/g, "");
 }

@@ -6,41 +6,45 @@ import { api } from "@/convex/_generated/api";
 import { useParams, useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { SlidePreviewCard } from "@/app/dashboard/components/SlidePreviewCard";
-import { Button } from "@workspace/ui/components/button";
-import { ButtonGroup } from "@workspace/ui/components/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog";
 
-import { Share2, MoreHorizontalIcon, Trash2Icon, BadgePlus } from "lucide-react";
+import { Button } from "@workspace/ui/components/button";
+import { Dialog, DialogTrigger } from "@workspace/ui/components/dialog";
+import { Share2 } from "lucide-react";
+import { ShareSlideDialog } from "@/app/dashboard/decks/[deckId]/slides/ShareSlideDialog";
+
 import { useEffect, useState } from "react";
+import DeckActions from "../../components/DeckActions";
 
 export default function Slides({ params }: { params: { deckId: Id<"decks"> } }) {
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const { deckId } = useParams();
   const router = useRouter();
-  const slides = useQuery(api.slides.getSlidesByDeckId, {
+  const slidesAndDeckData = useQuery(api.slides.getSlidesByDeckId, {
     deckId: deckId as Id<"decks">,
   });
+  const slides = slidesAndDeckData?.slides;
+  const deckTitle = slidesAndDeckData?.deckTitle;
+  const deckDescription = slidesAndDeckData?.deckDescription;
+
   const deleteDeck = useMutation(api.decks.deleteDeck);
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [_, setIsDeleting] = useState(false);
+
+  const createSlide = useMutation(api.slides.createSlide);
+
+  const handleAddSlide = async () => {
+    if (!deckId) {
+      console.error("No deck ID available");
+      return;
+    }
+    try {
+      const newSlideId = await createSlide({ deckId: deckId as Id<"decks"> });
+      router.push(`/dashboard/decks/${deckId}/slides/${newSlideId}`);
+    } catch (error) {
+      console.error("Failed to create slide:", error);
+    }
+  };
 
   useEffect(() => {
     if (slides === null) {
@@ -69,68 +73,38 @@ export default function Slides({ params }: { params: { deckId: Id<"decks"> } }) 
     <Protect>
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">Slides</h1>
-          <ButtonGroup>
-            <Button variant="outline" size="lg">
-              <BadgePlus />
-              Add Slide
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="lg" aria-label="More Options">
-                  <MoreHorizontalIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Share2 />
-                    Share With Members
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onSelect={(e) => {
-                          e.preventDefault(); // Prevent dropdown from closing
-                        }}
-                      >
-                        <Trash2Icon />
-                        Delete Deck
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete the deck and all its slides.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteDeck} className="bg-red-600 hover:bg-red-700">
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </ButtonGroup>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-semibold">{deckTitle}</h1>
+            <p className="text-sm">{deckDescription}</p>
+          </div>
+          <DeckActions
+            handleAddSlide={handleAddSlide}
+            isDeleteDialogOpen={isDeleteDialogOpen}
+            handleDeleteDeck={handleDeleteDeck}
+            setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+            deckId={deckId}
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {slides?.map((slide) => (
-            <div
-              key={slide._id}
-              onClick={() => router.push(`/dashboard/decks/${deckId}/slides/${slide._id}`)}
-              className="transition-transform hover:-translate-y-1 hover:shadow-md duration-150"
-            >
-              <SlidePreviewCard slide={slide} />
+          {slides?.map((slide, idx) => (
+            <div key={slide._id} className="transition-transform hover:-translate-y-1 hover:shadow-md duration-150">
+              <SlidePreviewCard
+                idx={idx}
+                slide={slide}
+                onSlideClick={() => router.push(`/dashboard/decks/${deckId}/slides/${slide._id}`)}
+              />
+              <div className="flex justify-end mt-4">
+                <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-gray-300 border-gray-600 hover:bg-gray-800">
+                      <Share2 className="h-4 w-4 mr-1" />
+                      Share
+                    </Button>
+                  </DialogTrigger>
+                  <ShareSlideDialog slideId={slide._id} />
+                </Dialog>
+              </div>
             </div>
           ))}
         </div>

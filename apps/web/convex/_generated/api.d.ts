@@ -10,6 +10,7 @@
 
 import type * as decks from "../decks.js";
 import type * as slides from "../slides.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +29,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   decks: typeof decks;
   slides: typeof slides;
+  users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

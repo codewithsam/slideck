@@ -10,7 +10,7 @@ import { ArrowLeft, Plus, RotateCcw, RotateCw } from "lucide-react";
 import { RoomProvider, useOthers, useHistory } from "@liveblocks/react/suspense";
 import SlideCanvas from "../SlideCanvas";
 import { LiveList } from "@liveblocks/client";
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 
 export default function SlidePage() {
   const { slideId, deckId } = useParams<{ slideId: Id<"slides">; deckId: Id<"decks"> }>();

@@ -74,3 +74,53 @@ export const deleteDeck = mutation({
 
     }
 })
+export const shareDeck = mutation({
+    args: {
+        deckId: v.id("decks"),
+        email: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthorized");
+
+        // Find sender (for validation)
+        const sender = await ctx.db
+            .query("users")
+            .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", identity.subject))
+            .unique();
+        if (!sender) throw new Error("Sender not found in Convex");
+
+        // Find target user by email
+        const targetUser = await ctx.db
+            .query("users")
+            .withIndex("by_email", (q) => q.eq("email", args.email))
+            .unique();
+        if (!targetUser) throw new Error("User not found");
+
+        // Prevent self-share
+        if (targetUser.clerkUserId === sender.clerkUserId) {
+            throw new Error("Cannot share with yourself");
+        }
+
+        // Fetch deck
+        const deck = await ctx.db.get(args.deckId);
+        if (!deck) throw new Error("Deck not found");
+
+        // Check ownership
+        if (deck.ownerId !== sender.clerkUserId) {
+            throw new Error("Only the owner can share this deck");
+        }
+
+        // Avoid duplicates
+        if (deck.sharedWith.includes(targetUser.clerkUserId)) {
+            return { alreadyShared: true };
+        }
+
+        // Update sharedWith array
+        await ctx.db.patch(args.deckId, {
+            sharedWith: [...deck.sharedWith, targetUser.clerkUserId],
+        });
+
+        return { success: true };
+    },
+});
