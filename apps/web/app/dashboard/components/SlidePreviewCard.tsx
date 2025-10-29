@@ -23,7 +23,7 @@ export function SlidePreviewCard({
       <CardContent className="p-4 flex flex-col justify-between h-full">
         <div className="items-center justify-center">
           <div className="flex flex-row text-4xl items-center justify-center text-muted-foreground">
-            <Hash size={64} /> Slide {idx}
+            <Hash size={64} /> Slide {idx + 1}
           </div>
         </div>
       </CardContent>
